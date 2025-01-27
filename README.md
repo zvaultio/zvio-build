@@ -4,6 +4,8 @@
  <a href="https://jira.ixsystems.com"><img alt="File Issue" src="https://badgen.net/badge/Jira/File%20Issue//red?icon=jira" /></a>
 </p>
 
+Forked from https://github.com/truenas/core-build
+
 # Building TrueNAS 13 CORE/Enterprise from Scratch
 
 Note: All these commands must be run as `root`.
