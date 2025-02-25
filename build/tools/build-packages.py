@@ -58,12 +58,12 @@ def read_repo_manifest():
 
 
 def build_pkgtools():
-    info('Building freenas-pkgtools')
+    info('Building zvio-pkgtools')
     info('Log file: {0}', pkgtoolslog)
 
     sh(
         "env MAKEOBJDIRPREFIX=${OBJDIR}",
-        "make -C ${BE_ROOT}/freenas-pkgtools obj all install DESTDIR=${tooldir} PREFIX=/usr/local",
+        "make -C ${BE_ROOT}/zvio-pkgtools obj all install DESTDIR=${tooldir} PREFIX=/usr/local",
         log=pkgtoolslog
     )
 

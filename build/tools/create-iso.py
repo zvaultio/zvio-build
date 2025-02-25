@@ -285,10 +285,10 @@ def install_ports():
 
 
 def install_pkgtools():
-    info('Installing freenas-pkgtools')
+    info('Installing zvio-pkgtools')
     sh(
         "env MAKEOBJDIRPREFIX=${OBJDIR}",
-        "make -C ${BE_ROOT}/freenas-pkgtools obj all install DESTDIR=${INSTUFS_DESTDIR} PREFIX=/usr/local",
+        "make -C ${BE_ROOT}/zvio-pkgtools obj all install DESTDIR=${INSTUFS_DESTDIR} PREFIX=/usr/local",
     )
 
 

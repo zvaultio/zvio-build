@@ -1,0 +1,142 @@
+[Package]
+
+name = base-os
+comment = "FreeNAS OS"
+desc = "FreeNAS OS (derived from FreeBSD)"
+www = http://www.freenas.org/
+origin = freenas/os
+maintainer = dev@ixsystems.com
+prefix = /
+arch = freebsd:10:x86:64
+licenselogic = or
+licenses = [BSD, MIT, GPL]
+
+requires-reboot = True
+[Scripts]
+
+post-install =
+	KV="$(uname -K)" || KV=0
+	if [ "${KV}" -lt 1100000 ]; then
+		script_name=base-os-post-install
+                mkdir -p /update-scripts
+                cp "${0}" /update-scripts/${script_name}
+                echo ${script_name} >> /update-scripts/order
+                exit 0
+        fi
+
+	/usr/bin/touch /boot/kernel/linker.hints
+	/usr/bin/touch /boot/modules/linker.hints
+	/usr/bin/touch /data/.hba_firmware_update
+	/usr/bin/touch /data/.ses_firmware_update
+
+	if ! dmidecode -s system-product-name | egrep "^(FREE|TRUE)NAS" > /dev/null; then
+		for i in `seq 0 3`; do
+			file=/boot/loader.conf.local
+			name="hint.isp.$i.role"
+			if ! cat "$file" | grep -q "$name"; then
+				echo "$name=2" >> $file
+			fi
+		done
+	fi
+
+post-upgrade =
+    has_alembic=$(echo "SELECT name FROM sqlite_master WHERE name = 'alembic_version'" | sqlite3 /data/freenas-v1.db)
+    if [ "$has_alembic" = "" ];
+    then
+        # Out of order migration, see #27607
+        has_hostname_virtual="$(/usr/local/bin/sqlite3 /data/freenas-v1.db "SELECT count() FROM django_migrations WHERE name = '0007_globalconfiguration_gc_hostname_virtual'")"
+        has_vlan_pcp="$(/usr/local/bin/sqlite3 /data/freenas-v1.db "SELECT count() FROM django_migrations WHERE name = '0005_vlan_vlan_pcp'")"
+        if [ "${has_hostname_virtual}" = "1" -a "${has_vlan_pcp}" = "0" ]; then
+            mkdir -p /data/sentinels
+            /usr/local/bin/sqlite3 /data/freenas-v1.db "SELECT gc_hostname_virtual FROM network_globalconfiguration" > /data/sentinels/gc_hostname_virtual_out_of_order
+            /usr/local/bin/sqlite3 /data/freenas-v1.db "DELETE FROM django_migrations WHERE name = '0007_globalconfiguration_gc_hostname_virtual'"
+        fi
+    fi
+
+	KV="$(uname -K)" || KV=0
+	if [ "${KV}" -lt 1100000 ]; then
+		script_name=base-os-post-upgrade
+                mkdir -p /update-scripts
+                cp "${0}" /update-scripts/${script_name}
+                echo  ${script_name} >> /update-scripts/order
+                exit 0
+        fi
+
+	/usr/bin/touch /boot/kernel/linker.hints
+	/usr/bin/touch /boot/modules/linker.hints
+	/usr/bin/touch /data/.hba_firmware_update
+	/usr/bin/touch /data/.ses_firmware_update
+	if [ -c /dev/null ]; then
+	   for disk in $(sysctl -n kern.disks); do
+	       if gpart show ${disk} | grep -q freebsd-boot; then
+		   gpart bootcode -b /boot/pmbr -p /boot/gptzfsboot -i 1 /dev/${disk}
+	       elif sysctl -n machdep.bootmethod | fgrep -q "EFI" && gpart show ${disk} | grep -q efi; then
+		   if mount -t msdosfs /dev/${disk}p1 /boot/efi; then
+		       cp /boot/boot1.efi /boot/efi/efi/boot/BOOTx64.efi
+		       umount -f /boot/efi
+		   fi
+	       fi
+	   done
+	fi
+
+    rm -rf /usr/local/www/freenasUI
+
+    if [ "$has_alembic" = "" ];
+    then
+         # If database does not have account:0005_add_netdata_user
+         # it means its too old and needs to run old migrator first
+         newdb=$(/usr/local/bin/sqlite3 /data/freenas-v1.db "select count() from django_migrations where app = 'account' and name = '0005_add_netdata_user'" 2> /dev/null)
+         if [ "${newdb}" != "1" ]; then
+            /usr/local/sbin/migrate93 -f /data/freenas-v1.db > "/data/update.failed" 2>&1 && rm -f /data/update.failed
+         else
+             rm -f /data/update.failed
+         fi
+         if [ ! -f "/data/update.failed" ]; then
+             /usr/local/sbin/migrate113 -f /data/freenas-v1.db > "/data/update.failed" 2>&1 && rm -f /data/update.failed
+         fi
+    else
+        rm -f /data/update.failed
+    fi
+    if [ ! -f "/data/update.failed" ]; then
+        /usr/local/sbin/migrate > "/data/update.failed" 2>&1 && rm -f /data/update.failed
+    fi
+    if [ ! -f "/data/update.failed" ]; then
+        /usr/local/bin/sqlite3 /data/freenas-v1.db "REPLACE INTO system_keyvalue (key, value) VALUES ('run_migration', 'true')" > "/data/update.failed" 2>&1 && rm -f /data/update.failed
+    fi
+    rm -f /data/sentinels/unscheduled-reboot
+
+    if ! dmidecode -s system-product-name | egrep "^(FREE|TRUE)NAS" > /dev/null; then
+        for i in `seq 0 3`; do
+            echo "hint.isp.$i.role=2" >> /boot/loader.conf.local
+        done
+    fi
+
+[Files]
+exclude = /usr/local/www/freenasUI
+	/usr/local/www/data/docs
+	/usr/local/share/doc
+	/usr/local/share/gtk-doc
+	/usr/local/share/gir-1.0
+	/usr/local/info
+	/usr/local/share/examples
+	/var/log
+	/conf/base/var/log/usr/log
+	/conf/base/var/db/fontconfig
+	/var/db/pkg
+	/conf/var/db/pkg
+	/dev/*
+	/data/*
+
+[Services]
+
+# This is a list of comma-seperated services provided by this package.
+# "reboot" is kinda special.
+# Note that I removed "DirectoryServices"
+services = SMB, AFP, NFS, iSCSI, WebDAV, reboot
+
+# This is a list of comma-seperated services that will always be
+# be restarted when this package is update.  "all" means all services
+# provided by this package.
+# In this case, nothing is automatically restarted, because base-os requires
+# a reboot unless otherwise stated.
+# restart = all

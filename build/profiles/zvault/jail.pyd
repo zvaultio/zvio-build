@@ -24,59 +24,39 @@
 # SUCH DAMAGE.
 #
 
-repos += {
-    "name": "zvio-os",
-    "path": "zvio-os",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-os",
-    "branch": "zvio-13.3"
+
+link += {
+    "source": OS_ROOT,
+    "dest": "/usr/src",
+    "flags": "ro",
 }
 
-repos += {
-    "name": "zvio-middleware",
-    "path": "zvio-middleware",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-middleware",
-    "branch": "zvio-13.3"
+copy += {
+    "source": "${BE_ROOT}/zvio-middleware/src",
+    "dest": "/usr/nas_source"
 }
 
-
-repos += {
-    "name": "zvio-webui",
-    "path": "zvio-webui",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-webui",
-    "branch": "zvio-13.3"
+copy += {
+    "source": "${BE_ROOT}/zvio-webui",
+    "dest": "/usr/webui"
 }
 
-repos += {
-    "name": "zvio-ports",
-    "path": "zvio-ports",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-ports.git",
-    "branch": "zvio-13.3"
+copy += {
+    "source": "${BE_ROOT}/zvio-py-licenselib",
+    "dest": "/usr/nas_source/zvio-py-licenselib"
 }
 
-repos += {
-    "name" :"zvio-licenselib",
-    "path": "zvio-licenselib",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-licenselib.git",
-    "branch": "zvio-13.3"
+copy += {
+    "source": "${BE_ROOT}/zvio-pkgtools",
+    "dest": "/usr/nas_source/zvio-pkgtools"
 }
 
-repos += {
-    "name": "zvio-pkgtools",
-    "path": "zvio-pkgtools",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-pkgtools.git",
-    "branch": "zvio-13.3"
+copy += {
+    "source": "${BE_ROOT}/zvio-py-bsd",
+    "dest": "/usr/nas_source/zvio-py-bsd"
 }
 
-repos += {
-    "name": "zvio-py-bsd",
-    "path": "zvio-py-bsd",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-py-bsd.git",
-    "branch": "zvio-13.3"
-}
-
-repos += {
-    "name": "zvio-iocage",
-    "path": "zvio-iocage",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-iocage.git",
-    "branch": "zvio-13.3"
+copy += {
+    "source": "${BE_ROOT}/zvio-iocage",
+    "dest": "/usr/iocage_src"
 }

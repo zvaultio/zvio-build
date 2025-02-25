@@ -1,6 +1,5 @@
 #+
 # Copyright (c) 2010-2015 iXsystems, Inc., All rights reserved.
-# Updates (c) 2024-2024 zVault.io
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -24,59 +23,17 @@
 # SUCH DAMAGE.
 #
 
-repos += {
-    "name": "zvio-os",
-    "path": "zvio-os",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-os",
-    "branch": "zvio-13.3"
+packages += {
+    "name": "base-os",
+    "template": "${PROFILE_ROOT}/packages/base-os"
 }
 
-repos += {
-    "name": "zvio-middleware",
-    "path": "zvio-middleware",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-middleware",
-    "branch": "zvio-13.3"
+packages += {
+    "name": "freebsd-pkgdb",
+    "template": "${PROFILE_ROOT}/packages/freebsd-pkgdb"
 }
 
-
-repos += {
-    "name": "zvio-webui",
-    "path": "zvio-webui",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-webui",
-    "branch": "zvio-13.3"
-}
-
-repos += {
-    "name": "zvio-ports",
-    "path": "zvio-ports",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-ports.git",
-    "branch": "zvio-13.3"
-}
-
-repos += {
-    "name" :"zvio-licenselib",
-    "path": "zvio-licenselib",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-licenselib.git",
-    "branch": "zvio-13.3"
-}
-
-repos += {
-    "name": "zvio-pkgtools",
-    "path": "zvio-pkgtools",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-pkgtools.git",
-    "branch": "zvio-13.3"
-}
-
-repos += {
-    "name": "zvio-py-bsd",
-    "path": "zvio-py-bsd",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-py-bsd.git",
-    "branch": "zvio-13.3"
-}
-
-repos += {
-    "name": "zvio-iocage",
-    "path": "zvio-iocage",
-    "url": "http://127.0.0.1:3000/zvaultio/zvio-iocage.git",
-    "branch": "zvio-13.3"
+packages += {
+    "name": "freenas-pkg-tools",
+    "template": "${PROFILE_ROOT}/packages/freenas-pkg-tools"
 }

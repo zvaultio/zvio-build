@@ -72,8 +72,8 @@ def create_overlay():
 def create_poudriere_config():
     sh('mkdir -p ${DISTFILES_CACHE}')
     opts = {
-        'ports_repo': config['repos'].where(name='ports')['path'],
-        'ports_branch': config['repos'].where(name='ports')['branch'],
+        'ports_repo': config['repos'].where(name='zvio-ports')['path'],
+        'ports_branch': config['repos'].where(name='zvio-ports')['branch'],
         'no_zfs': 'yes',
         'package_fetch_branch': 'lates',
         'package_fetch_whitelist': 'gcc* rust'
